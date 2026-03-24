@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+    /* On adapte Quill au style LinguaPro */
+    .ql-toolbar.ql-snow {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+        background-color: #f9fafb;
+        border-color: #e5e7eb;
+    }
+    .ql-container.ql-snow {
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        border-color: #e5e7eb;
+        font-family: inherit;
+        font-size: 1rem;
+        min-height: 400px;
+    }
+    /* Le menu contextuel personnalisé */
+    #custom-menu {
+        position: absolute;
+        display: none;
+        z-index: 1000;
+        min-width: 200px;
+    }
+</style>
+
+<div class="p-6">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Traducteur Mot-à-Mot</h2>
+        <p class="text-gray-600">Sélectionnez un mot et faites un <b>clic droit</b> pour voir la traduction instantanée.</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+        <div id="editor-wrapper">
+            <div id="editor">
+                Manao ahoana! Ity dia andrana. Manorata teny toy ny hoe "saka" na "trano" eto dia tsindrio ny bokotra havanana amin'ny voalavo (clic droit).
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-menu" class="bg-white border border-gray-300 shadow-xl rounded-lg p-4 animate-in fade-in zoom-in duration-150">
+        <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">
+            <i class="fas fa-language mr-1"></i> Traduction
+        </p>
+        <div id="menu-content" class="text-gray-800 font-medium italic">
+            <div class="animate-pulse flex space-x-2">
+                <div class="h-2 bg-gray-200 rounded w-full"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialisation de Quill
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Commencez à écrire...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            }
+        });
+
+        const menu = document.getElementById('custom-menu');
+        const menuContent = document.getElementById('menu-content');
+
+        // Dictionnaire de test (Simulé)
+        const dictionary = {
+            'saka': 'Chat (n.m)',
+            'trano': 'Maison (n.f)',
+            'manao': 'Faire / Aller',
+            'ahoana': 'Comment',
+            'andrana': 'Essai / Test'
+        };
+
+        // Gestion du clic droit
+        document.querySelector('.ql-editor').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+
+            // Récupérer le texte sélectionné
+            const selection = window.getSelection().toString().trim().toLowerCase();
+
+            if (selection.length > 0) {
+                // Positionner le menu
+                menu.style.display = 'block';
+                menu.style.top = `${e.pageY}px`;
+                menu.style.left = `${e.pageX}px`;
+
+                // Traduire ou afficher "Inconnu"
+                const translation = dictionary[selection] || "Mot non trouvé dans le dictionnaire.";
+                menuContent.innerHTML = `<span class="text-indigo-700">${translation}</span>`;
+            } else {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Fermer le menu si on clique ailleurs
+        document.addEventListener('click', function(e) {
+            if (!menu.contains(e.target)) {
+                menu.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Gardez vos styles CSS ici ou mettez-les dans static/css/style.css */
+        :root { --primary: #4F46E5; }
+        .sidebar { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <div class="sidebar bg-white w-64 border-r border-gray-200 flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-indigo-600 flex items-center">
+                    <i class="fas fa-language mr-2"></i> LinguaPro
+                </h1>
+            </div>
+            <nav class="flex-1 overflow-y-auto">
+                <div class="p-4">
+                    <div class="mb-6">
+                        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Outils Principaux</h2>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="{{ url_for('index') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-indigo-50 hover:text-indigo-700">
+                                    <i class="fas fa-edit mr-3 text-indigo-500"></i> Correcteur
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('traducteur') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-indigo-50 hover:text-indigo-700">
+                                    <i class="fas fa-exchange-alt mr-3 text-gray-500"></i> Traducteur
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('sentiment') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-indigo-50 hover:text-indigo-700">
+                                    <i class="fas fa-smile mr-3 text-gray-500"></i> Analyse de Sentiment
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Fonctions Avancées</h2>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="{{ url_for('tts') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-indigo-50 hover:text-indigo-700">
+                                    <i class="fas fa-microphone-alt mr-3 text-gray-500"></i> Synthèse Vocale
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('entities') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-indigo-50 hover:text-indigo-700">
+                                    <i class="fas fa-tag mr-3 text-gray-500"></i> Reconnaissance d'Entités
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('chatbot') }}" class="...">
+                                    <i class="fas fa-robot mr-3 text-gray-500"></i> Chatbot Assistant
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <div class="flex-1 overflow-auto">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

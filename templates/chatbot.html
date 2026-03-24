@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-6 h-full flex flex-col">
+    <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">Chatbot Assistant</h2>
+        <p class="text-gray-600 text-sm">Posez vos questions sur les synonymes, la traduction ou l'orthographe malgache.</p>
+    </div>
+
+    <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden mb-4 min-h-[500px]">
+        <div id="chat-area" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div class="flex justify-start">
+                <div class="bg-white border border-gray-200 text-gray-800 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%]">
+                    Salama 👋 Afaka manampy anao amin'ny teny malagasy aho. 
+                    Andramo ohatra : "dikan'ny trano" na "teny mitovy amin'ny tsara".
+                </div>
+            </div>
+        </div>
+
+        <div class="p-3 border-t border-gray-100 bg-white flex flex-wrap gap-2">
+            <button onclick="fillAndSend('teny mitovy amin\'ny tsara')" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full hover:bg-indigo-100">Synonyme "Tsara"</button>
+            <button onclick="fillAndSend('dikan\'ny trano')" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full hover:bg-indigo-100">Traduction "Trano"</button>
+        </div>
+
+        <div class="p-4 border-t border-gray-200 bg-white">
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" 
+                       class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                       placeholder="Soraty eto ny hafatrao...">
+                <button onclick="sendMessage()" 
+                        class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition shadow-md">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const input = document.getElementById("chat-input");
+    const chatArea = document.getElementById("chat-area");
+
+    // Ajouter une bulle de message à l'écran
+    function addMessage(text, sender) {
+        const wrapper = document.createElement("div");
+        wrapper.className = sender === "user" ? "flex justify-end" : "flex justify-start";
+        
+        const bubble = document.createElement("div");
+        bubble.className = sender === "user" 
+            ? "bg-indigo-600 text-white px-4 py-3 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]" 
+            : "bg-white border border-gray-200 text-gray-800 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%]";
+        
+        bubble.innerText = text;
+        wrapper.appendChild(bubble);
+        chatArea.appendChild(wrapper);
+        chatArea.scrollTop = chatArea.scrollHeight; // Scroller vers le bas
+    }
+
+    function fillAndSend(text) {
+        input.value = text;
+        sendMessage();
+    }
+
+    async function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
+
+        // 1. Afficher le message de l'utilisateur
+        addMessage(message, "user");
+        input.value = "";
+
+        // 2. Afficher un indicateur de chargement
+        const loadingId = "loading-" + Date.now();
+        addMessage("...", "bot");
+
+        try {
+            // 3. Appel à l'API Flask (configurée dans app.py)
+            const response = await fetch("/api/chatbot", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+            
+            // 4. Remplacer le dernier message "..." par la vraie réponse
+            const botMessages = document.querySelectorAll(".flex.justify-start");
+            const lastBubble = botMessages[botMessages.length - 1].querySelector("div");
+            lastBubble.innerText = data.response;
+
+        } catch (error) {
+            console.error("Erreur Chatbot:", error);
+        }
+    }
+
+    // Gérer la touche Entrée
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+</script>
+{% endblock %}

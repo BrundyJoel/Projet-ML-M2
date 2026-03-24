@@ -1,0 +1,50 @@
+{
+  "trano": "maison",
+  "sekoly": "école",
+  "rano": "eau",
+  "boky": "livre",
+  "olona": "personne",
+  "sakafo": "nourriture",
+  "lalana": "route",
+  "tanana": "ville",
+  "ankizy": "enfant",
+
+  "tsara": "bien",
+  "ratsy": "mauvais",
+  "haingana": "rapide",
+  "miadana": "lent",
+  "faly": "heureux",
+  "malahelo": "triste",
+  "be": "beaucoup",
+  "kely": "petit",
+  "lehibe": "grand",
+
+  "madio": "propre",
+  "maloto": "sale",
+  "vaovao": "nouveau",
+  "antitra": "vieux",
+
+  "mandeha": "marcher",
+  "mihinana": "manger",
+  "matory": "dormir",
+  "miasa": "travailler",
+  "mianatra": "étudier",
+
+  "namana": "ami",
+  "fianakaviana": "famille",
+  "zaza": "enfant",
+
+  "andro": "jour",
+  "alina": "nuit",
+  "maraina": "matin",
+  "hariva": "soir",
+
+  "fiara": "voiture",
+  "bisikileta": "vélo",
+  "sambo": "bateau",
+
+  "ranomasina": "mer",
+  "renirano": "rivière",
+  "tendrombohitra": "montagne",
+  "ala": "forêt"
+}
