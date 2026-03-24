@@ -59,33 +59,20 @@
         // Initialisation de Quill
         var quill = new Quill('#editor', {
             theme: 'snow',
-            placeholder: 'Commencez à écrire...',
+            placeholder: 'Soraty eto ny lahatsoratrao...',
             modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['clean']
-                ]
+                toolbar: [['bold', 'italic', 'underline'], ['clean']]
             }
         });
 
         const menu = document.getElementById('custom-menu');
         const menuContent = document.getElementById('menu-content');
-
-        // Dictionnaire de test (Simulé)
-        const dictionary = {
-            'saka': 'Chat (n.m)',
-            'trano': 'Maison (n.f)',
-            'manao': 'Faire / Aller',
-            'ahoana': 'Comment',
-            'andrana': 'Essai / Test'
-        };
+        const editorArea = document.querySelector('.ql-editor');
 
         // Gestion du clic droit
-        document.querySelector('.ql-editor').addEventListener('contextmenu', function(e) {
+        editorArea.addEventListener('contextmenu', async function(e) {
             e.preventDefault();
 
-            // Récupérer le texte sélectionné
             const selection = window.getSelection().toString().trim().toLowerCase();
 
             if (selection.length > 0) {
@@ -94,19 +81,40 @@
                 menu.style.top = `${e.pageY}px`;
                 menu.style.left = `${e.pageX}px`;
 
-                // Traduire ou afficher "Inconnu"
-                const translation = dictionary[selection] || "Mot non trouvé dans le dictionnaire.";
-                menuContent.innerHTML = `<span class="text-indigo-700">${translation}</span>`;
+                // Loader
+                menuContent.innerHTML = `<div class="text-xs text-gray-400">Fikarohana...</div>`;
+
+                try {
+                    const response = await fetch("/api/translate-word", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ word: selection })
+                    });
+                    
+                    const data = await response.json();
+
+                    if (data.status === "success") {
+                        menuContent.innerHTML = `
+                            <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">English</p>
+                            <p class="text-sm text-slate-800 mb-2 font-medium">${data.translation_en}</p>
+                            
+                            <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Français</p>
+                            <p class="text-sm text-slate-800 font-medium">${data.translation_fr}</p>
+                        `;
+                    } else {
+                        menuContent.innerHTML = `<span class="text-gray-400 text-xs italic">Tsy hita ny dikany</span>`;
+                    }
+                } catch (err) {
+                    menuContent.innerHTML = `<span class="text-red-500 text-xs">Erreur serveur</span>`;
+                }
             } else {
                 menu.style.display = 'none';
             }
         });
 
-        // Fermer le menu si on clique ailleurs
-        document.addEventListener('click', function(e) {
-            if (!menu.contains(e.target)) {
-                menu.style.display = 'none';
-            }
+        // Fermer le menu au clic
+        document.addEventListener('click', () => {
+            menu.style.display = 'none';
         });
     });
 </script>

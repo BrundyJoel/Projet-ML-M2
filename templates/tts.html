@@ -2,9 +2,68 @@
 
 {% block content %}
 <div class="p-6">
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">Correcteur Orthographique</h2>
-    <div id="text-editor" contenteditable="true" class="bg-white border p-4 rounded-lg min-h-[300px]">
-        Bonjour, tapez votre texte ici...
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Synthèse Vocale Malagasy</h2>
+    
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Entrez votre texte :</label>
+        <textarea id="tts-text" rows="4" 
+                  class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  placeholder="Soraty eto ny fehezanteny tianao hovakiana..."></textarea>
+        
+        <div class="mt-4 flex items-center gap-4">
+            <button onclick="generateSpeech()" id="btn-read"
+                    class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center shadow-md">
+                <i class="fas fa-volume-up mr-2"></i> Hamaky ny lahatsoratra
+            </button>
+            <div id="loader" class="hidden text-indigo-600 animate-spin">
+                <i class="fas fa-circle-notch"></i>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <audio id="audio-player" controls class="w-full hidden">
+                <source id="audio-source" src="" type="audio/mpeg">
+            </audio>
+        </div>
     </div>
 </div>
+
+<script>
+async function generateSpeech() {
+    const text = document.getElementById("tts-text").value;
+    const btn = document.getElementById("btn-read");
+    const loader = document.getElementById("loader");
+    const player = document.getElementById("audio-player");
+    const source = document.getElementById("audio-source");
+
+    if (!text) return alert("Ampidiro ny lahatsoratra!");
+
+    // UI Loading
+    btn.disabled = true;
+    loader.classList.remove("hidden");
+
+    try {
+        const response = await fetch("/api/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
+        });
+
+        const data = await response.json();
+
+        if (data.audio_url) {
+            // Mettre à jour la source et recharger le lecteur
+            source.src = data.audio_url;
+            player.load();
+            player.classList.remove("hidden");
+            player.play(); // Lecture automatique
+        }
+    } catch (error) {
+        alert("Nisy olana teo am-pamokarana ny feo.");
+    } finally {
+        btn.disabled = false;
+        loader.classList.add("hidden");
+    }
+}
+</script>
 {% endblock %}

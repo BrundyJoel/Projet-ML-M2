@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 import os
 import json
+from nlp.chatbot import chatbot_response
+from gtts import gTTS
+import re
+
 
 app = Flask(__name__)
 
@@ -22,10 +26,48 @@ def sentiment():
 def tts():
     return render_template('tts.html')
 
+def split_syllables(word):
+    """Découpe le mot en syllabes pour une lecture plus fluide"""
+    syllables = re.findall(r'[^aeiouy]*[aeiouy]+', word.lower())
+    return " ".join(syllables) if syllables else word
+
+@app.route('/api/tts', methods=['POST'])
+def text_to_speech():
+    data = request.get_json()
+    text = data.get("text", "").strip()
+    
+    if not text:
+        return jsonify({"error": "Texte vide"}), 400
+
+    try:
+        # 1. Traitement du texte (Syllabisation)
+        words = text.split()
+        processed_text = "  ".join([split_syllables(w) for w in words])
+
+        # 2. Génération gTTS (Intonation Indonésienne)
+        tts = gTTS(text=processed_text, lang="id")
+        
+        # 3. Sauvegarde dans le dossier static
+        file_path = os.path.join('static', 'output.mp3')
+        tts.save(file_path)
+
+        return jsonify({"audio_url": "/static/output.mp3?v=" + str(os.urandom(4).hex())})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/entites')
 def entities():
     return render_template('entities.html')
 
+
+@app.route('/api/chatbot', methods=['POST'])
+def api_chatbot():
+    data = request.get_json(silent=True) or {}
+    message = data.get("message", "")
+    response = chatbot_response(message)
+    return jsonify({"response": response})
+
+# La route pour afficher la page (Endpoint: chatbot)
 @app.route('/chatbot')
 def chatbot():
     return render_template('chatbot.html')
@@ -70,4 +112,4 @@ def translate_api():
     return jsonify({"status": "not_found"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080 )
